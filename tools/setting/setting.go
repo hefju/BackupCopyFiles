@@ -6,8 +6,8 @@ import (
 )
 var AppConfig Config
 type Config struct {
-    ObjectPath string
-    DesPath string
+    OriginalPath string
+    TargetPath string
 }
 func LoadProfile(){
     file:="conf.json"

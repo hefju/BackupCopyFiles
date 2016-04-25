@@ -5,15 +5,20 @@ import (
     "path/filepath"
 //    "strconv"
  //   "time"
+    "io"
 )
 
-func GetAllFiles2(path string)[]string{
-    files:=make([]string,0)
-    CalcFilesSync(path, files)
-    return files
+type  FileNode struct {
+    FullPath ,Filename string
+}
+func GetAllFiles5(path string)(chan  *FileNode){
+    fileArray:=make(chan *FileNode,50)
+    go  WalkingFiles(path, fileArray)
+    return  fileArray
 }
 
-func CalcFilesSync(inputPath string,files []string) {
+//遍历文件
+func WalkingFiles(inputPath string, fileArray chan *FileNode) {
     filepath.Walk(inputPath,
     func(path string, f os.FileInfo, err error) error {
         if f == nil {
@@ -22,70 +27,62 @@ func CalcFilesSync(inputPath string,files []string) {
         if f.IsDir() {
             return nil
         }
-        files= append(files,f.Name())
-        fmt.Println("CalcFilesSync "+f.Name())
+        fn:=&FileNode{FullPath:path+f.Name(),Filename:f.Name()}
+        fileArray<-fn
+//         filepath:=path+f.Name()
+//        fileArray<-filepath
         return nil
     })
+    close(fileArray)
+}
+func CopyFiles(fileArray chan  *FileNode,targetpath string)  {
+    fn:=<-fileArray
+    dst:=targetpath+fn.Filename
+    CopyFile(fn.FullPath,dst)
+}
+//复制文件
+func CopyFile(src,dst string)(w int64,err error){
+    fmt.Println("dst:",dst)
+    panic("copyfile")
+    srcFile,err := os.Open(src)
+    if err!=nil{
+        fmt.Println(err.Error())
+        return
+    }
+    defer srcFile.Close()
+
+    dstFile,err := os.Create(dst)
+
+    if err!=nil{
+        fmt.Println(err.Error())
+        return
+    }
+
+    defer dstFile.Close()
+
+    return io.Copy(dstFile,srcFile)
 }
 
 
-func GetAllFiles(path string)(chan string,chan bool){
-    // file, _ := os.Getwd()
-    // fmt.Println("current path:", file)
-    fileArray:=make(chan string,10)
 
-    done := make(chan bool)
-  go  CalcFiles(path, done,fileArray)
-
-   // println("loading files...")
-
-   // time.Sleep(time.Second)
-  //  println("loading finish!")
-   // <-done
-    return  fileArray,done
+func GetAllFiles2(path string)[]string{
+    fmt.Println(path)
+    files:=make([]string,0)
+    CalcFilesSync(path, files)
+    return files
 }
 
-
-func CalcFiles2(inputPath string, fileArray chan string) {
-    file := inputPath
-    filepath.Walk(file,
-    func(path string, f os.FileInfo, err error) error {
-        if f == nil {
-            return err
-        }
-        if f.IsDir() {
+func CalcFilesSync(inputPath string,files []string) {
+    filepath.Walk(inputPath,
+        func(path string, f os.FileInfo, err error) error {
+            if f == nil {
+                return err
+            }
+            if f.IsDir() {
+                return nil
+            }
+            files= append(files,f.Name())
+            fmt.Println("CalcFilesSync "+f.Name())
             return nil
-        }
-        fileArray<-f.Name()
-        return nil
-    })
-}
-
-func CalcFiles(inputPath string, done chan bool,fileArray chan string) {
-    file := inputPath
-//    var filesize int64 = 0
-//    fileCount := 0
-//    folderCount := 0
-    filepath.Walk(file,
-    func(path string, f os.FileInfo, err error) error {
-        if f == nil {
-            return err
-        }
-        if f.IsDir() {
-            //println(path)
-           // folderCount++
-            return nil
-        }
-//        filesize += f.Size()
-//        fileCount++
-        fileArray<-f.Name()
-        fmt.Println(f.Name())
-        //println(f.Name())
-        return nil
-    })
-//    fmt.Println("文件夹:", inputPath, "文件夹数量:", folderCount, "文件数量:", fileCount)
-//    mb := strconv.FormatFloat(float64(filesize)/1024.0/1024.0, 'f', 2, 32)
-//    gb := strconv.FormatFloat(float64(filesize)/1024.0/1024.0/1024.0, 'f', 2, 32)
-//    fmt.Println("总大小:", mb, "MB ", gb, "GB")
-    done <- true
+        })
 }
