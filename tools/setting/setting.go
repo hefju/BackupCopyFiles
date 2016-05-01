@@ -6,7 +6,7 @@ import (
 )
 var AppConfig Config
 type Config struct {
-    OriginalPath string
+    SourcePath string
     TargetPath string
 }
 func LoadProfile(){
@@ -22,5 +22,5 @@ func LoadProfile(){
         log.Fatalln(err)
     }
     AppConfig=c
-    log.Println("load setting from "+file)
+  //  log.Println("load setting from "+file)
 }

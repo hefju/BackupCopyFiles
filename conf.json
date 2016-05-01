@@ -1,6 +1,8 @@
 {
   "filename":"conf.json",
-  "OriginalPath":"D:/JuProject/server",
-  "TargetPath":"D:/lxxxx",
- "ObjectPath2":"d:/xsystem"
+
+  "SourcePath":"F:/VdiskAirDownload1",
+
+  "TargetPath":"d:/ysystem"
+
 }
