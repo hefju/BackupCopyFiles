@@ -39,7 +39,7 @@ func main() {
 	fmt.Println("复制成功,按任意键结束. 耗时:", time.Now().Sub(t1)) //"press any key to continue")
 	// bufio.NewReader(os.Stdin).ReadBytes('\n')
 
-	fmt.Scanln(&end)
+	//fmt.Scanln(&end)
 }
 
 //func copyfiles(done2 chan bool){
